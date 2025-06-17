@@ -13,13 +13,10 @@ enum Role {
   ADMIN
 }
 
-enum ActionType {
-  CREATE_USER
-  UPDATE_USER
-  DELETE_USER
-  GET_USER
-  GET_ALL_USERS
-  GET_USER_BY_USERNAME
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
 }
 
 model User {
@@ -37,16 +34,14 @@ model User {
 }
 
 model AuditLog {
-  id              String     @id @default(uuid())
-  performedById   String     // ID of user who performed the action
-  performedByRole Role       // Role of user who performed the action
-  targetUserId    String?    // ID of user being acted upon (null for GET_ALL_USERS)
-  action          ActionType // Type of action performed
-  payload         Json?      // Request payload/data used
-  result          Json?      // Response data (optional)
-  timestamp       DateTime   @default(now())
-  success         Boolean    @default(true)
-  errorMessage    String?    // Error message if action failed
-  
+  id          String      @id @default(uuid())
+  action      AuditAction
+  tableName   String
+  recordId    String
+  initiatedBy String      // User ID who initiated the action
+  initiatorUsername String? // Username for easier readability
+  recordData  Json?       // Store the data that was created/updated
+  timestamp   DateTime    @default(now())
+
   @@map("audit_logs")
 }

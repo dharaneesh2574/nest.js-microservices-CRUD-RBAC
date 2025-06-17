@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Delete, Param, Headers, UseGuards, Request, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Delete, Param, Headers, UseGuards, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
 
@@ -15,23 +15,6 @@ export class UsersController {
   @Get()
   findAll(@Request() req: any) {
     return this.usersService.getAllUsers(req.user);
-  }
-
-  @Get('audit-logs')
-  getAuditLogs(
-    @Request() req: any,
-    @Query('targetUserId') targetUserId?: string,
-    @Query('action') action?: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string
-  ) {
-    return this.usersService.getAuditLogs(
-      req.user,
-      targetUserId,
-      action,
-      limit ? parseInt(limit) : undefined,
-      offset ? parseInt(offset) : undefined
-    );
   }
 
   @Get(':id')
@@ -52,5 +35,15 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string, @Request() req: any) {
     return this.usersService.deleteUser(id, req.user);
+  }
+
+  @Get(':userId/audit-logs')
+  getUserAuditLogs(@Param('userId') userId: string, @Request() req: any) {
+    return this.usersService.getUserAuditLogs(userId, req.user);
+  }
+
+  @Get('audit-logs/all')
+  getAllAuditLogs(@Request() req: any) {
+    return this.usersService.getAllAuditLogs(req.user);
   }
 } 

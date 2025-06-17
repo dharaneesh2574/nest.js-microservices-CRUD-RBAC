@@ -12,7 +12,7 @@ export class UsersService {
   getAllUsers(user: any) {
     return this.client.send({ cmd: 'get_all_users' }, { user });
   }
-
+  
   getUserById(id: string, user: any) {
     return this.client.send({ cmd: 'get_user_by_id' }, { id, user });
   }
@@ -29,13 +29,11 @@ export class UsersService {
     return this.client.send({ cmd: 'delete_user' }, { id, user });
   }
 
-  getAuditLogs(user: any, targetUserId?: string, action?: string, limit?: number, offset?: number) {
-    return this.client.send({ cmd: 'get_audit_logs' }, { 
-      user, 
-      targetUserId, 
-      action, 
-      limit: limit || 100, 
-      offset: offset || 0 
-    });
+  getUserAuditLogs(userId: string, user: any) {
+    return this.client.send({ cmd: 'get_user_audit_logs' }, { userId, user });
+  }
+
+  getAllAuditLogs(user: any) {
+    return this.client.send({ cmd: 'get_all_audit_logs' }, { user });
   }
 } 

@@ -26,6 +26,10 @@ export class AuthService {
         password: hashedPassword,
         role: data.role === 'ADMIN' ? 'ADMIN' : 'USER',
       },
+      auditContext: {
+        initiatorId: 'SIGNUP_SYSTEM',
+        initiatorUsername: 'Signup System'
+      }
     });
 
     return { message: 'user created' };

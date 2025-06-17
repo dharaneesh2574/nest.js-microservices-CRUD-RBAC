@@ -1,22 +1,21 @@
-import { Controller, UseInterceptors } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuditInterceptor } from '../audit/audit.interceptor';
-import { AuditService } from '../audit/audit.service';
 
 @Controller()
-@UseInterceptors(AuditInterceptor)
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly auditService: AuditService
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @MessagePattern({ cmd: 'create_user' })
   create(data: { createUserDto: CreateUserDto; user?: any }) {
-    return this.usersService.create(data.createUserDto, data.user?.role);
+    return this.usersService.create(
+      data.createUserDto, 
+      data.user?.role, 
+      data.user?.id, 
+      data.user?.username
+    );
   }
 
   @MessagePattern({ cmd: 'get_all_users' })
@@ -36,27 +35,32 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'update_user' })
   update(data: { id: string; updateUserDto: UpdateUserDto; user: any }) {
-    return this.usersService.update(data.id, data.updateUserDto, data.user.role, data.user.id);
+    return this.usersService.update(
+      data.id, 
+      data.updateUserDto, 
+      data.user.role, 
+      data.user.id, 
+      data.user.username
+    );
   }
 
   @MessagePattern({ cmd: 'delete_user' })
   remove(data: { id: string; user: any }) {
-    return this.usersService.remove(data.id, data.user.role, data.user.id);
+    return this.usersService.remove(
+      data.id, 
+      data.user.role, 
+      data.user.id, 
+      data.user.username
+    );
   }
 
-  @MessagePattern({ cmd: 'get_audit_logs' })
-  async getAuditLogs(data: { 
-    user: any; 
-    targetUserId?: string; 
-    action?: string; 
-    limit?: number; 
-    offset?: number 
-  }) {
-    // Only admins can view all audit logs, users can only view their own
-    if (data.user.role !== 'ADMIN') {
-      return this.auditService.getAuditLogs(data.user.id, data.action, data.limit, data.offset);
-    }
+  @MessagePattern({ cmd: 'get_user_audit_logs' })
+  getUserAuditLogs(data: { userId: string; user: any }) {
+    return this.usersService.getUserAuditLogs(data.userId, data.user.role, data.user.id);
+  }
 
-    return this.auditService.getAuditLogs(data.targetUserId, data.action, data.limit, data.offset);
+  @MessagePattern({ cmd: 'get_all_audit_logs' })
+  getAllAuditLogs(data: { user: any }) {
+    return this.usersService.getAllAuditLogs(data.user.role);
   }
 } 
