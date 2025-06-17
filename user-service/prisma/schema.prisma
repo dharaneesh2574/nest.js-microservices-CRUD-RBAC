@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ActionType {
+  CREATE_USER
+  UPDATE_USER
+  DELETE_USER
+  GET_USER
+  GET_ALL_USERS
+  GET_USER_BY_USERNAME
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  email     String?  @unique
+  firstName String?
+  lastName  String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model AuditLog {
+  id              String     @id @default(uuid())
+  performedById   String     // ID of user who performed the action
+  performedByRole Role       // Role of user who performed the action
+  targetUserId    String?    // ID of user being acted upon (null for GET_ALL_USERS)
+  action          ActionType // Type of action performed
+  payload         Json?      // Request payload/data used
+  result          Json?      // Response data (optional)
+  timestamp       DateTime   @default(now())
+  success         Boolean    @default(true)
+  errorMessage    String?    // Error message if action failed
+  
+  @@map("audit_logs")
+}
